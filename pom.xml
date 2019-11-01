@@ -13,6 +13,7 @@
         <module>jdbc-spring-boot-starter</module>
         <module>resource-spring-boot-starter</module>
         <module>common-spring-boot-starter</module>
+        <module>sharding-jdbc-spring-boot-starter</module>
     </modules>
     <dependencies>
         <dependency>
