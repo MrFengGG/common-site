@@ -28,7 +28,7 @@ public class FrontRequestResult<T> implements Serializable {
     public static FrontRequestResult fail(Object result){
         return FrontRequestResult.builder()
                 .code(ResultMsgEnum.FAIL.getCode())
-                .msg(ResultMsgEnum.FAIL.getMsg()).data(result)
+                .msg(String.valueOf(result)).data(result)
                 .build();
     }
 

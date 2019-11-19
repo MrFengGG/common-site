@@ -54,19 +54,23 @@ public class ResourceAspect {
         Optional<ContextUser> contextUserOptional = accessUserService.accessUser(request);
         if(contextUserOptional.isPresent()){
             ContextUser contextUser = contextUserOptional.get();
+            if(contextUser.getRoleList().stream().anyMatch(role -> resourceConfiguration.getWhiteListRole().contains(role))){
+                //白名单角色过滤
+                return;
+            }
             AuthContext.setContextUser(contextUser);
             if(!authenticateService.authenticate(resourceMeta, contextUser.getRoleList())){
                 //如果验证未通过且没有任何权限,重定向到登录路径
                if(contextUser.getRoleList().size() <= 0){
-                   redirect(request, response);
+                   redirectLogin(request, response);
                }
                throw new UnsupportedOperationException("权限不足");
             }
         }
-        redirect(request, response);
+        redirectLogin(request, response);
     }
 
-    private void redirect(HttpServletRequest request, HttpServletResponse response) throws IOException {
+    private void redirectLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {
         response.sendRedirect(resourceConfiguration.getLoginUrl() + "?originUrl=" + request.getRequestURI());
     }
 }

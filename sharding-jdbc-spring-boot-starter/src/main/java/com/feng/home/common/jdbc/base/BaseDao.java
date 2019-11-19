@@ -13,14 +13,19 @@ import java.sql.SQLException;
 import java.util.*;
 
 public abstract class BaseDao{
-    private JdbcTemplate jdbcTemplate;
+    protected JdbcTemplate jdbcTemplate;
 
     protected void setJdbcTemplate(JdbcTemplate jdbcTemplate){
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public <T> Page<T> queryForPaginationBean(Page<T> page, Class<T> modelClass, String sql, Object[] args) throws SQLException{
-        PaginationSupport paginationSupport = getSuitablePaginationSupport();
+    public <T> Page<T> queryForPaginationBean(Page<T> page, Class<T> modelClass, String sql, Object[] args){
+        PaginationSupport paginationSupport = null;
+        try {
+            paginationSupport = getSuitablePaginationSupport();
+        } catch (SQLException e) {
+            throw new UnsupportedOperationException(e);
+        }
         int total = this.count(paginationSupport.getCountSql(sql));
         page.setTotal(total);
         List<T> data = this.jdbcTemplate.query(paginationSupport.getPaginationSql(sql, page), new BeanPropertyRowMapper<>(modelClass), args);
@@ -42,8 +47,13 @@ public abstract class BaseDao{
         return Optional.ofNullable(t);
     }
 
-    public Page<Map<String, Object>> queryForPaginationMap(Page<Map<String, Object>> page, String sql, Object[] args) throws SQLException{
-        PaginationSupport paginationSupport = getSuitablePaginationSupport();
+    public Page<Map<String, Object>> queryForPaginationMap(Page<Map<String, Object>> page, String sql, Object[] args) {
+        PaginationSupport paginationSupport = null;
+        try {
+            paginationSupport = getSuitablePaginationSupport();
+        } catch (SQLException e) {
+            throw new UnsupportedOperationException(e);
+        }
         int total = this.count(paginationSupport.getCountSql(sql));
         page.setTotal(total);
         List<Map<String, Object>> data = this.jdbcTemplate.queryForList(paginationSupport.getPaginationSql(sql, page), args);

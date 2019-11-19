@@ -21,9 +21,8 @@ public class HttpTokenAccessUserService implements AccessUserService {
     @Override
     public Optional<ContextUser> accessUser(HttpServletRequest request) {
         String token = request.getHeader("token");
-        ContextUser contextUser = null;
         if(StringUtil.isEmpty(token)){
-            return Optional.ofNullable(contextUser);
+            return Optional.ofNullable(null);
         }
         return accessUser(token);
     }
@@ -35,6 +34,7 @@ public class HttpTokenAccessUserService implements AccessUserService {
             if(jsonObject.getInteger("code") > 0){
                 JSONObject userData = jsonObject.getJSONObject("data");
                 if(userData != null) {
+                    contextUser = new ContextUser();
                     contextUser.setRoleList(userData.getJSONArray("roles").stream().map(String::valueOf).collect(Collectors.toList()));
                     contextUser.setUsername(userData.getString("username"));
                     contextUser.setExtend(new Dict(userData.getInnerMap()));

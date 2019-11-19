@@ -3,6 +3,8 @@ package com.feng.home.common;
 import lombok.Data;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 
+import java.util.Set;
+
 @Data
 @ConfigurationProperties("resource")
 public class ResourceConfiguration {
@@ -18,4 +20,6 @@ public class ResourceConfiguration {
     private String loginUrl;
     //鉴权模式local:本地,remote:远程
     private String authModel;
+    //白名单角色
+    private Set<String> whiteListRole;
 }

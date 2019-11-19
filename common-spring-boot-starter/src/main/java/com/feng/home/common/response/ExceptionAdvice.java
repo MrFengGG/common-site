@@ -10,7 +10,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 @ResponseBody
 public class ExceptionAdvice {
     @ExceptionHandler(Exception.class)
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
     Object handleException(Exception e){
         return FrontRequestResult.fail(e.getMessage());
     }
