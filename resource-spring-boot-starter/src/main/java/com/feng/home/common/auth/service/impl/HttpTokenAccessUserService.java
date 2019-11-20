@@ -6,6 +6,8 @@ import com.feng.home.common.auth.bean.ContextUser;
 import com.feng.home.common.auth.service.AccessUserService;
 import com.feng.home.common.collection.Dict;
 import com.feng.home.common.common.StringUtil;
+import com.feng.home.common.exception.AuthException;
+import com.feng.home.common.exception.InvalidTokenException;
 import com.feng.home.common.http.HttpUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 
@@ -19,15 +21,15 @@ public class HttpTokenAccessUserService implements AccessUserService {
     private ResourceConfiguration resourceConfiguration;
 
     @Override
-    public Optional<ContextUser> accessUser(HttpServletRequest request) {
+    public Optional<ContextUser> accessUser(HttpServletRequest request) throws AuthException, InvalidTokenException {
         String token = request.getHeader("token");
         if(StringUtil.isEmpty(token)){
-            return Optional.ofNullable(null);
+            throw new AuthException();
         }
         return accessUser(token);
     }
 
-    private Optional<ContextUser> accessUser(String token){
+    private Optional<ContextUser> accessUser(String token) throws InvalidTokenException {
         ContextUser contextUser = null;
         try {
             JSONObject jsonObject = HttpUtil.get(resourceConfiguration.getCheckTokenUrl(), new Dict().set("token", token),new Dict());
@@ -41,7 +43,7 @@ public class HttpTokenAccessUserService implements AccessUserService {
                 }
             }
         } catch (IOException e) {
-            throw new UnsupportedOperationException("token校验失败", e);
+            throw new InvalidTokenException("token校验失败", e);
         }
         return Optional.ofNullable(contextUser);
     }

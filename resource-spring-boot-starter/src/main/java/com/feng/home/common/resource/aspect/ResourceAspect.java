@@ -5,6 +5,9 @@ import com.feng.home.common.auth.bean.ContextUser;
 import com.feng.home.common.auth.service.AccessUserService;
 import com.feng.home.common.auth.AuthContext;
 import com.feng.home.common.auth.service.AuthenticateService;
+import com.feng.home.common.exception.AuthException;
+import com.feng.home.common.exception.ForbiddenException;
+import com.feng.home.common.exception.InvalidTokenException;
 import com.feng.home.common.resource.annotation.ResourceMeta;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -47,7 +50,7 @@ public class ResourceAspect {
         return result;
     }
 
-    private void checkAuth(ResourceMeta resourceMeta) throws IOException {
+    private void checkAuth(ResourceMeta resourceMeta) throws IOException, ForbiddenException, AuthException, InvalidTokenException {
         ServletRequestAttributes requestAttributes = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes());
         HttpServletRequest request = requestAttributes.getRequest();
         HttpServletResponse response = requestAttributes.getResponse();
@@ -64,7 +67,7 @@ public class ResourceAspect {
                if(contextUser.getRoleList().size() <= 0){
                    redirectLogin(request, response);
                }
-               throw new UnsupportedOperationException("权限不足");
+               throw new ForbiddenException("权限不足");
             }
         }
         redirectLogin(request, response);
