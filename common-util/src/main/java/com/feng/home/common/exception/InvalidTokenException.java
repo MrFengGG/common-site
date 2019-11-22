@@ -7,6 +7,10 @@ import com.feng.home.common.enums.ResponseCode;
  * 2019/11/20
  */
 public class InvalidTokenException extends BusinessException{
+    public InvalidTokenException(String message) {
+        super(message);
+    }
+
     public InvalidTokenException(String message, Throwable cause) {
         super(message, cause);
     }

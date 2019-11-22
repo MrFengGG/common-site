@@ -22,7 +22,11 @@ import org.springframework.web.context.request.ServletRequestAttributes;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Aspect
 public class ResourceAspect {
@@ -41,36 +45,39 @@ public class ResourceAspect {
 
     @Around("addAdvice()")
     public Object intercept(ProceedingJoinPoint pjp) throws Throwable {
+        //获取当前访问的资源
         ResourceMeta resourceMeta = AnnotationUtils.getAnnotation(((MethodSignature)pjp.getSignature()).getMethod(), ResourceMeta.class);
-        if(resourceMeta.enableAuthCheck()){
-            checkAuth(resourceMeta);
+        if(!resourceMeta.enableAuthCheck()){
+            return pjp.proceed();
         }
-        Object result = pjp.proceed();
-
-        return result;
+        //获取当前访问的用户
+        ServletRequestAttributes requestAttributes = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes());
+        HttpServletRequest request = requestAttributes.getRequest();
+        Optional<ContextUser> contextUserOptional = accessUserService.accessUser(request);
+        //验证是否登陆
+        if(!contextUserOptional.isPresent()){
+            if(this.resourceConfiguration.isEnableRedirect()){
+                HttpServletResponse response = requestAttributes.getResponse();
+                redirectLogin(request, response);
+            }
+            throw new AuthException();
+        }
+        //过滤白名单,验证权限
+        Collection<String> userRoles = contextUserOptional.map(ContextUser::getRoleList).orElse(resourceConfiguration.getVisitorRoleList());
+        if(resourceMeta.enableAuthCheck() && !userRoles.stream().anyMatch(role -> resourceConfiguration.getWhiteListRole().contains(role))){
+            checkAuth(resourceMeta, userRoles);
+        }
+        AuthContext.setContextUser(ContextUser.builder().roleList(userRoles).build());
+        return pjp.proceed();
     }
 
-    private void checkAuth(ResourceMeta resourceMeta) throws IOException, ForbiddenException, AuthException, InvalidTokenException {
+    private void checkAuth(ResourceMeta resourceMeta, Collection<String> roles) throws IOException, ForbiddenException, AuthException, InvalidTokenException {
         ServletRequestAttributes requestAttributes = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes());
         HttpServletRequest request = requestAttributes.getRequest();
         HttpServletResponse response = requestAttributes.getResponse();
-        Optional<ContextUser> contextUserOptional = accessUserService.accessUser(request);
-        if(contextUserOptional.isPresent()){
-            ContextUser contextUser = contextUserOptional.get();
-            if(contextUser.getRoleList().stream().anyMatch(role -> resourceConfiguration.getWhiteListRole().contains(role))){
-                //白名单角色过滤
-                return;
-            }
-            AuthContext.setContextUser(contextUser);
-            if(!authenticateService.authenticate(resourceMeta, contextUser.getRoleList())){
-                //如果验证未通过且没有任何权限,重定向到登录路径
-               if(contextUser.getRoleList().size() <= 0){
-                   redirectLogin(request, response);
-               }
-               throw new ForbiddenException("权限不足");
-            }
+        if(!authenticateService.authenticate(resourceMeta, roles)){
+            throw new ForbiddenException("权限不足");
         }
-        redirectLogin(request, response);
     }
 
     private void redirectLogin(HttpServletRequest request, HttpServletResponse response) throws IOException {

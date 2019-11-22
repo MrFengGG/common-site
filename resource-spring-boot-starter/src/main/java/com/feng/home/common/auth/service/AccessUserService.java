@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.Optional;
 
 /**
- * token校验
+ * token换用户
  */
 public interface AccessUserService {
     public Optional<ContextUser> accessUser(HttpServletRequest request) throws ForbiddenException, AuthException, InvalidTokenException;

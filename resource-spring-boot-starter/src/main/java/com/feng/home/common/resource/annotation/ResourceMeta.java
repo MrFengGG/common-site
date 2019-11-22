@@ -16,5 +16,5 @@ public @interface ResourceMeta {
 
     String group();
 
-    boolean enableAuthCheck() default false;
+    boolean enableAuthCheck() default true;
 }

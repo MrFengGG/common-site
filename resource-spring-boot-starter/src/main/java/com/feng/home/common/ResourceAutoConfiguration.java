@@ -28,11 +28,12 @@ public class ResourceAutoConfiguration {
     }
 
     @Bean
+    @ConditionalOnMissingBean
     public AccessUserService accessUserService(){
         return new HttpTokenAccessUserService();
     }
 
-    @ConditionalOnMissingBean(value = AuthenticateService.class)
+    @ConditionalOnMissingBean
     @Bean
     public AuthenticateService authenticateService(){
         return new HttpAuthenticateService();

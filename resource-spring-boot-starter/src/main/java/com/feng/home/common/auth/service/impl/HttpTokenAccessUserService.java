@@ -23,28 +23,31 @@ public class HttpTokenAccessUserService implements AccessUserService {
     @Override
     public Optional<ContextUser> accessUser(HttpServletRequest request) throws AuthException, InvalidTokenException {
         String token = request.getHeader("token");
-        if(StringUtil.isEmpty(token)){
-            throw new AuthException();
+        ContextUser contextUser = null;
+        if(!StringUtil.isEmpty(token)){
+            contextUser = accessUser(token);
         }
-        return accessUser(token);
+        return Optional.ofNullable(contextUser);
     }
 
-    private Optional<ContextUser> accessUser(String token) throws InvalidTokenException {
+    private ContextUser accessUser(String token) throws InvalidTokenException {
         ContextUser contextUser = null;
         try {
             JSONObject jsonObject = HttpUtil.get(resourceConfiguration.getCheckTokenUrl(), new Dict().set("token", token),new Dict());
-            if(jsonObject.getInteger("code") > 0){
-                JSONObject userData = jsonObject.getJSONObject("data");
-                if(userData != null) {
-                    contextUser = new ContextUser();
-                    contextUser.setRoleList(userData.getJSONArray("roles").stream().map(String::valueOf).collect(Collectors.toList()));
-                    contextUser.setUsername(userData.getString("username"));
-                    contextUser.setExtend(new Dict(userData.getInnerMap()));
-                }
+            if(jsonObject.getInteger("code") < 0) {
+                throw new InvalidTokenException("token解析失败");
             }
+            JSONObject userData = jsonObject.getJSONObject("data");
+            if(userData == null){
+                throw new InvalidTokenException("无效的token");
+            }
+            contextUser = new ContextUser();
+            contextUser.setRoleList(userData.getJSONArray("roles").stream().map(String::valueOf).collect(Collectors.toList()));
+            contextUser.setUsername(userData.getString("username"));
+            contextUser.setExtend(new Dict(userData.getInnerMap()));
         } catch (IOException e) {
             throw new InvalidTokenException("token校验失败", e);
         }
-        return Optional.ofNullable(contextUser);
+        return contextUser;
     }
 }
