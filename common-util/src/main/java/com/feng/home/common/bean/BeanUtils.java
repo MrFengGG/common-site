@@ -20,7 +20,7 @@ public class BeanUtils {
      * @return
      */
     public static String underscoreName(String name) {
-        if (!StringUtil.isEmpty(name)) {
+        if (StringUtil.isEmpty(name)) {
             return "";
         } else {
             StringBuilder result = new StringBuilder();

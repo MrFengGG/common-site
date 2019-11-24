@@ -24,6 +24,8 @@ public final class SqlBuilder {
 
     private String table;
 
+    private List<String> orderByList = new LinkedList<>();
+
     public SqlBuilder(SqlTypeEnum sqlType, String table){
         this.sqlType = sqlType;
         if(sqlType == SqlTypeEnum.SELECT){
@@ -142,6 +144,11 @@ public final class SqlBuilder {
         return this;
     }
 
+    public SqlBuilder orderBy(String column, OrderTypeEnum orderTypeEnum){
+        this.orderByList.add(column + " " + orderTypeEnum.value);
+        return this;
+    }
+
     public SqlResult build(){
         StringBuilder finalSqlBuilder = new StringBuilder(String.valueOf(this.sqlType));
         if(this.sqlType == SqlTypeEnum.SELECT){
@@ -150,11 +157,24 @@ public final class SqlBuilder {
                     .append(" from ").append(table);
         }
         finalSqlBuilder.append(sqlStringBuilder);
+        if(this.orderByList.size() > 0){
+            finalSqlBuilder.append(" order by " + StringUtil.join(this.orderByList, ","));
+        }
         return new SqlResult(finalSqlBuilder.toString(), params.toArray());
     }
 
     public static enum SqlTypeEnum{
         SELECT, UPDATE, ADD, REMOVE;
+    }
+
+    public static enum OrderTypeEnum{
+        DESC("desc"), ASC("asc");
+
+        OrderTypeEnum(String value) {
+            this.value = value;
+        }
+
+        private String value;
     }
 
     public static final class SqlResult{
