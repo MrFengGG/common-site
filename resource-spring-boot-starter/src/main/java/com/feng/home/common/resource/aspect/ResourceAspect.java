@@ -67,7 +67,7 @@ public class ResourceAspect {
         if(resourceMeta.enableAuthCheck() && !userRoles.stream().anyMatch(role -> resourceConfiguration.getWhiteListRole().contains(role))){
             checkAuth(resourceMeta, userRoles);
         }
-        AuthContext.setContextUser(ContextUser.builder().roleList(userRoles).build());
+        AuthContext.setContextUser(ContextUser.builder().roleList(userRoles).username(contextUserOptional.map(ContextUser::getUsername).orElse(null)).build());
         return pjp.proceed();
     }
 
