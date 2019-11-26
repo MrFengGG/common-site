@@ -16,4 +16,5 @@ public class AuthContext {
     public static void clean(){
         contextUserThreadLocal.remove();
     }
+    
 }
