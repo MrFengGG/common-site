@@ -26,7 +26,7 @@ public abstract class BaseDao{
         } catch (SQLException e) {
             throw new UnsupportedOperationException(e);
         }
-        int total = this.count(paginationSupport.getCountSql(sql));
+        int total = this.count(paginationSupport.getCountSql(sql), args);
         page.setTotal(total);
         List<T> data = this.jdbcTemplate.query(paginationSupport.getPaginationSql(sql, page), new BeanPropertyRowMapper<>(modelClass), args);
         page.setData(data);
@@ -54,7 +54,7 @@ public abstract class BaseDao{
         } catch (SQLException e) {
             throw new UnsupportedOperationException(e);
         }
-        int total = this.count(paginationSupport.getCountSql(sql));
+        int total = this.count(paginationSupport.getCountSql(sql), args);
         page.setTotal(total);
         List<Map<String, Object>> data = this.jdbcTemplate.queryForList(paginationSupport.getPaginationSql(sql, page), args);
         page.setData(data);
@@ -95,6 +95,20 @@ public abstract class BaseDao{
             batchArgs.add(beanPropertyMap.values().toArray());
         }
         this.jdbcTemplate.batchUpdate(sql, batchArgs);
+    }
+
+    public <T> Optional<T> findById(Integer id, Class<T> modelClass, String table){
+        return findBy("id", modelClass, table, id);
+    }
+
+    public <T> Optional<T> findBy(String key, Class<T> modelClass, String table, Object value){
+        T t;
+        try {
+            t = this.jdbcTemplate.queryForObject("select * from " + table + " where " + key + "=?", BeanPropertyRowMapper.newInstance(modelClass), value);
+        }catch (EmptyResultDataAccessException e){
+            t = null;
+        }
+        return Optional.ofNullable(t);
     }
 
     public Integer count(String sql, Object[] args){

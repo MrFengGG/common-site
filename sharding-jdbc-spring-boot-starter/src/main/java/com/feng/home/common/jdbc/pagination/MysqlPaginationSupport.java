@@ -13,12 +13,12 @@ public class MysqlPaginationSupport implements PaginationSupport {
             sqlBuilder.append(" ORDER BY ").append(page.getSortBy()).append(page.getRank());
         }
         sqlBuilder.append(" limit ").append(startIndex).append(",").append(endIndex);
-        return sqlBuilder.toString().toUpperCase();
+        return sqlBuilder.toString().toLowerCase();
     }
 
     @Override
     public String getCountSql(String sql) {
-        return ("SELECT COUNT(*) FROM (" + sql + ") A").toUpperCase();
+        return ("SELECT COUNT(*) FROM (" + sql + ") A").toLowerCase();
     }
 
     @Override

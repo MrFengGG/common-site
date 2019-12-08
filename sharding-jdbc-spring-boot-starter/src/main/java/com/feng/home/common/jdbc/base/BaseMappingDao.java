@@ -10,6 +10,14 @@ import java.util.Optional;
  */
 public abstract class BaseMappingDao extends BaseDao{
 
+    public <T> Optional<T> findById(Integer id, Class<T> modelClass){
+        return this.findById(id, modelClass, this.getTable());
+    }
+
+    public <T> Optional<T> findBy(String key, Object value, Class<T> modelClass){
+        return this.findBy(key, modelClass, this.getTable(), value);
+    }
+
     public <T> int updateBean(String column, T bean){
         return this.updateBean(column, bean, this.getTable());
     }
