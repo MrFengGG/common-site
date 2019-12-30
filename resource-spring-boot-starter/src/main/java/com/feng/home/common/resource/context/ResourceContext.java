@@ -1,5 +1,7 @@
 package com.feng.home.common.resource.context;
 
+import com.feng.home.common.resource.aspect.ResourceAspect;
+import com.feng.home.common.resource.base.ResourceHandler;
 import com.feng.home.common.resource.service.ResourceProcessor;
 import com.feng.home.common.resource.annotation.ResourceClass;
 import com.feng.home.common.resource.annotation.ResourceMeta;
@@ -28,6 +30,10 @@ public class ResourceContext implements ApplicationContextAware {
         Map<String, ResourceProcessor> resourceProcessMap = applicationContext.getBeansOfType(ResourceProcessor.class);
         Collection<ResourceMeta> resources = resourceMetaMap.values();
         resourceProcessMap.values().forEach(resourceProcess -> resourceProcess.processResourceMeta(resources));
+        //添加资源拦截器
+        Map<String, ResourceHandler> resourceHandlerMap = applicationContext.getBeansOfType(ResourceHandler.class);
+        ResourceAspect resourceAspect = applicationContext.getBean(ResourceAspect.class);
+        resourceHandlerMap.values().forEach(resourceAspect::addHandle);
     }
 
     public static Map getResourceMetaMap(){

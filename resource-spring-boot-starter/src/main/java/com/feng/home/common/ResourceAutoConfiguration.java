@@ -1,9 +1,14 @@
 package com.feng.home.common;
 
+import com.feng.home.common.auth.AuthContext;
+import com.feng.home.common.auth.ResourceAuthHandler;
 import com.feng.home.common.auth.service.AccessUserService;
 import com.feng.home.common.auth.service.AuthenticateService;
 import com.feng.home.common.auth.service.impl.HttpAuthenticateService;
 import com.feng.home.common.auth.service.impl.HttpTokenAccessUserService;
+import com.feng.home.common.bean.BeanUtils;
+import com.feng.home.common.resource.base.ResourceHandler;
+import com.feng.home.common.resource.context.ResourceContext;
 import com.feng.home.common.resource.service.RemoteResourcePusher;
 import com.feng.home.common.resource.service.ResourceProcessor;
 import com.feng.home.common.resource.aspect.ResourceAspect;
@@ -37,5 +42,20 @@ public class ResourceAutoConfiguration {
     @Bean
     public AuthenticateService authenticateService(){
         return new HttpAuthenticateService();
+    }
+
+    @Bean
+    public AuthContext authContext(){
+        return new AuthContext();
+    }
+
+    @Bean("authHandler")
+    public ResourceHandler authHandler(){
+        return new ResourceAuthHandler();
+    }
+
+    @Bean
+    public ResourceContext resourceContext(){
+        return new ResourceContext();
     }
 }

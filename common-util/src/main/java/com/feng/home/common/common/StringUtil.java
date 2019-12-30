@@ -20,6 +20,15 @@ public class StringUtil {
         return value == null || String.valueOf(value).equals("");
     }
 
+    public static boolean isAllNotEmpty(Object ...value){
+        for(Object val : value){
+            if(StringUtil.isEmpty(val)){
+                return false;
+            }
+        }
+        return true;
+    }
+
     public static boolean isNotEmpty(Object value){
         return !isEmpty(value);
     }

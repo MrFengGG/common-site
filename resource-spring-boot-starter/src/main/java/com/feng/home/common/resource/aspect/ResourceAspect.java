@@ -8,15 +8,19 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
 import org.springframework.core.annotation.AnnotationUtils;
+
+import java.util.Comparator;
 import java.util.LinkedList;
+import java.util.Map;
+import java.util.TreeMap;
 
 @Aspect
 public class ResourceAspect {
 
-    private LinkedList<ResourceHandler> handlerList = new LinkedList<>();
+    Map<Long, ResourceHandler> handlerMap = new TreeMap<>(Comparator.reverseOrder());
 
     public void addHandle(ResourceHandler handler){
-        handlerList.addLast(handler);
+        handlerMap.put(handler.getPriority(), handler);
     }
 
     @Pointcut("@annotation(com.feng.home.common.resource.annotation.ResourceMeta)")
@@ -26,9 +30,9 @@ public class ResourceAspect {
     public Object intercept(ProceedingJoinPoint pjp) throws Throwable {
         //获取当前访问的资源
         ResourceMeta resourceMeta = AnnotationUtils.getAnnotation(((MethodSignature)pjp.getSignature()).getMethod(), ResourceMeta.class);
-        handlerList.forEach(handler -> handler.handBefore(resourceMeta, pjp));
+        handlerMap.values().forEach(handler -> handler.handBefore(resourceMeta, pjp));
         Object result =  pjp.proceed();
-        handlerList.forEach(handler -> handler.handAfter(resourceMeta, result));
+        handlerMap.values().forEach(handler -> handler.handAfter(resourceMeta, result));
         return result;
     }
 }

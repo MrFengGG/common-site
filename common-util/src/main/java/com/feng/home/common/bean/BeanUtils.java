@@ -1,8 +1,16 @@
 package com.feng.home.common.bean;
 
 import com.feng.home.common.common.StringUtil;
+import com.feng.home.common.exception.BusinessException;
+import com.feng.home.common.exception.SampleBusinessException;
+import org.apache.commons.beanutils.BeanUtilsBean;
 
+import java.beans.BeanInfo;
+import java.beans.Introspector;
+import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -14,11 +22,8 @@ import java.util.stream.Collectors;
  * 2019/11/01
  */
 public class BeanUtils {
-    /**
-     * 将驼峰命名转化为下划线命名
-     * @param name
-     * @return
-     */
+
+    //将驼峰命名转化为下划线命名
     public static String underscoreName(String name) {
         if (StringUtil.isEmpty(name)) {
             return "";
@@ -38,11 +43,23 @@ public class BeanUtils {
         }
     }
 
-    /**
-     * 将bean转化为查询字段
-     * @param bean
-     * @return
-     */
+    public static String camelName(String name){
+        if (StringUtil.isEmpty(name)) {
+            return "";
+        }else{
+            StringBuilder result = new StringBuilder();
+            for (int i = 0; i < name.length(); i++) {
+                String s = name.substring(i, i + 1);
+                if (s.equals("_")) {
+                    result.append(name.substring(i+1, i + 2).toUpperCase());
+                } else {
+                    result.append(s);
+                }
+            }
+            return result.toString();
+        }
+    }
+
     public static Map<String, Object> transBeanToMap(Object bean){
         Map<String, Object> queryMap = new HashMap<>();
         Field[] fields = bean.getClass().getDeclaredFields();
@@ -72,5 +89,30 @@ public class BeanUtils {
             }
         }
         return queryMap;
+    }
+
+    public static <T> T transMapToBean(Class<T> beanClass, Map<String, ? extends Object> map, boolean withUnderScore) throws BusinessException {
+        if(map == null){
+            return null;
+        }
+        try {
+            Object object = beanClass.newInstance();
+            Field[] fields = beanClass.getDeclaredFields();
+            for (Field field : fields) {
+                int mod = field.getModifiers();
+                if (Modifier.isFinal(mod) || Modifier.isStatic(mod)) {
+                    continue;
+                }
+                field.setAccessible(true);
+                String fieldName = field.getName();
+                if(withUnderScore){
+                    fieldName = underscoreName(fieldName);
+                }
+                field.set(object, map.get(fieldName));
+            }
+            return (T) object;
+        } catch (Exception e) {
+            throw new SampleBusinessException("对象转换异常" + map + e.getMessage());
+        }
     }
 }

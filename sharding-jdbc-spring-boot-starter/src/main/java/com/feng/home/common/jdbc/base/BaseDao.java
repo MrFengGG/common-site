@@ -5,6 +5,7 @@ import com.feng.home.common.jdbc.pagination.PaginationSupport;
 import com.feng.home.common.jdbc.pagination.PaginationSupportFactory;
 import com.feng.home.common.bean.BeanUtils;
 import com.feng.home.common.common.StringUtil;
+import com.feng.home.common.sql.SqlBuilder;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -19,6 +20,7 @@ public abstract class BaseDao{
         this.jdbcTemplate = jdbcTemplate;
     }
 
+    //分页查询
     public <T> Page<T> queryForPaginationBean(Page<T> page, Class<T> modelClass, String sql, Object[] args){
         PaginationSupport paginationSupport = null;
         try {
@@ -32,11 +34,17 @@ public abstract class BaseDao{
         page.setData(data);
         return page;
     }
-
+    public <T> Page<T> queryForPaginationBean(Page<T> page, Class<T> modelClass, SqlBuilder sqlBuilder){
+        return queryForPaginationBean(page, modelClass, sqlBuilder.getSql(), sqlBuilder.getParamArray());
+    }
+    //全量查询
     public <T> List<T> queryForAllBean(Class<T> modelClass, String sql, Object[] args){
         return this.jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(modelClass), args);
     }
-
+    public <T> List<T> queryForAllBean(Class<T> modelClass, SqlBuilder sqlBuilder){
+        return this.queryForAllBean(modelClass, sqlBuilder.getSql(), sqlBuilder.getParamArray());
+    }
+    //单项查询
     public <T> Optional<T> findFirstBean(Class<T> modelClass, String sql, Object[] args){
         T t;
         try {
@@ -46,7 +54,10 @@ public abstract class BaseDao{
         }
         return Optional.ofNullable(t);
     }
-
+    public <T> Optional<T> findFirstBean(Class<T> modelClass, SqlBuilder sqlBuilder){
+        return findFirstBean(modelClass, sqlBuilder.getSql(), sqlBuilder.getParamArray());
+    }
+    //分页map查询
     public Page<Map<String, Object>> queryForPaginationMap(Page<Map<String, Object>> page, String sql, Object[] args) {
         PaginationSupport paginationSupport = null;
         try {
@@ -60,7 +71,10 @@ public abstract class BaseDao{
         page.setData(data);
         return page;
     }
-
+    public Page<Map<String, Object>> queryForPaginationMap(Page<Map<String, Object>> page, SqlBuilder sqlBuilder){
+        return queryForPaginationMap(page, sqlBuilder.getSql(), sqlBuilder.getParamArray());
+    }
+    //更新数据
     public <T> int updateBean(String column, T bean, String table){
         Map<String, Object> parameterMap = BeanUtils.transBeanToMap(bean);
         Object selectValue = parameterMap.remove(column);
@@ -70,17 +84,32 @@ public abstract class BaseDao{
         String sql = getUpdateSql(parameterMap, table, column);
         return this.jdbcTemplate.update(sql, params.toArray());
     }
-
+    //根据ID更数据
     public <T> int updateById(T bean, String table){
         return updateBean("id", bean, table);
     }
-
+    //删除
+    public int remove(String column, Object value, String table){
+        String sql = "delete from " + table + " where " + column + " =?";
+        return this.jdbcTemplate.update(sql, value);
+    }
+    public int remove(String column, Object[] valueArray, String table){
+        String sql = "delete from " + table + " where " + column + " in(" + StringUtil.getEmptyParams(valueArray.length) + ")";
+        return this.jdbcTemplate.update(sql, valueArray);
+    }
+    public int removeById(Object id, String table){
+        return remove("id", id, table);
+    }
+    public int removeByIdArray(Object[] array, String table){
+        return remove("id", array, table);
+    }
+    //保存
     public <T> void saveBean(T bean, String table){
         Map<String, Object> parameterMap = BeanUtils.transBeanToMap(bean);
         String sql = this.getSaveSql(parameterMap, table);
         this.jdbcTemplate.update(sql, parameterMap.values().toArray());
     }
-
+    //批量保存
     public <T> void saveBeanList(List<T> beans, String table){
         if(beans.size() <= 0){
             return;
@@ -96,11 +125,11 @@ public abstract class BaseDao{
         }
         this.jdbcTemplate.batchUpdate(sql, batchArgs);
     }
-
+    //根据ID查询
     public <T> Optional<T> findById(Integer id, Class<T> modelClass, String table){
         return findBy("id", modelClass, table, id);
     }
-
+    //根据字段快速查询
     public <T> Optional<T> findBy(String key, Class<T> modelClass, String table, Object value){
         T t;
         try {
@@ -110,11 +139,13 @@ public abstract class BaseDao{
         }
         return Optional.ofNullable(t);
     }
-
+    //计数
     public Integer count(String sql, Object[] args){
         return this.jdbcTemplate.queryForObject(sql, Integer.class, args);
     }
-
+    public Integer count(SqlBuilder sqlBuilder){
+        return this.jdbcTemplate.queryForObject(sqlBuilder.getSql(), Integer.class, sqlBuilder.getParamArray());
+    }
     public Integer count(String sql){
         return this.jdbcTemplate.queryForObject(sql, Integer.class);
     }
