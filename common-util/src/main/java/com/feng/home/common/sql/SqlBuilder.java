@@ -3,6 +3,7 @@ package com.feng.home.common.sql;
 import com.feng.home.common.common.StringUtil;
 
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.stream.Collectors;
 
@@ -74,6 +75,14 @@ public final class SqlBuilder {
         if(paramArray.length > 0){
             sqlBuilder.append(" ").append(sql).append(" in(").append(StringUtil.getEmptyParams(paramArray.length)).append(")");
             params.addAll(Arrays.stream(paramArray).collect(Collectors.toList()));
+        }
+        return this;
+    }
+
+    public SqlBuilder joinIn(String sql, Collection paramArray){
+        if(paramArray.size() > 0){
+            sqlBuilder.append(" ").append(sql).append(" in(").append(StringUtil.getEmptyParams(paramArray.size())).append(")");
+            params.addAll(paramArray);
         }
         return this;
     }
