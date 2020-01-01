@@ -34,6 +34,14 @@ public abstract class BaseMappingDao extends BaseDao{
         this.saveBeanList(beanList, getTable());
     }
 
+    public void removeBy(String column, Object value){
+        this.remove(column, value, this.getTable());
+    }
+
+    public void removeById(Object value){
+        this.removeBy("id", value);
+    }
+
     public Optional<DaoMapping> getThisDaoMapping(){
         return Optional.ofNullable(this.getClass().getAnnotation(DaoMapping.class));
     }
