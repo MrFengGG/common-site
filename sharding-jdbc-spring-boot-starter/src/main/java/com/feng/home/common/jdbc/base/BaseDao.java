@@ -74,6 +74,14 @@ public abstract class BaseDao{
     public Page<Map<String, Object>> queryForPaginationMap(Page<Map<String, Object>> page, SqlBuilder sqlBuilder){
         return queryForPaginationMap(page, sqlBuilder.getSql(), sqlBuilder.getParamArray());
     }
+    //更新
+    public int update(SqlBuilder sqlBuilder){
+        return this.update(sqlBuilder.getSql(), sqlBuilder.getParamArray());
+    }
+
+    public int update(String sql, Object[] args){
+        return jdbcTemplate.update(sql, args);
+    }
     //更新数据
     public <T> int updateBean(String column, T bean, String table){
         Map<String, Object> parameterMap = BeanUtils.transBeanToMap(bean);
