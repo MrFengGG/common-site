@@ -17,5 +17,7 @@ public class ContextUser {
 
     private String username;
 
+    private String loginIp;
+
     private Dict extend;
 }

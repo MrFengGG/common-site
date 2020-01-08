@@ -26,6 +26,7 @@ public class HttpTokenAccessUserService implements AccessUserService {
         ContextUser contextUser = null;
         if(!StringUtil.isEmpty(token)){
             contextUser = accessUser(token);
+            contextUser.setLoginIp(request.getRemoteAddr());
         }
         return Optional.ofNullable(contextUser);
     }

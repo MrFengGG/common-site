@@ -58,11 +58,12 @@ public class ResourceAuthHandler implements ResourceHandler {
             }
             //过滤白名单,验证权限
             Collection<String> userRoles = contextUserOptional.map(ContextUser::getRoleList).orElse(resourceConfiguration.getVisitorRoleList());
-            if(resourceMeta.enableAuthCheck() && !userRoles.stream().anyMatch(role -> resourceConfiguration.getWhiteListRole().contains(role))){
+            if(resourceMeta.enableAuthCheck() && userRoles.stream().noneMatch(role -> resourceConfiguration.getWhiteListRole().contains(role))){
                 checkAuth(resourceMeta, userRoles);
             }
-            AuthContext.setContextUser(ContextUser.builder().roleList(userRoles).username(contextUserOptional.map(ContextUser::getUsername)
-                    .orElse(null)).build());
+            ContextUser contextUser = ContextUser.builder().roleList(userRoles).username(contextUserOptional.map(ContextUser::getUsername)
+                    .orElse(null)).extend(contextUserOptional.map(ContextUser::getExtend).orElse(null)).build();
+            AuthContext.setContextUser(contextUser);
         }
     }
 
