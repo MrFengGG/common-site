@@ -14,6 +14,7 @@
         <module>common-spring-boot-starter</module>
         <module>sharding-jdbc-spring-boot-starter</module>
         <module>simple-task</module>
+        <module>zk-springboot-starter</module>
     </modules>
     <dependencies>
         <dependency>
