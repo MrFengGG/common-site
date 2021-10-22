@@ -3,13 +3,7 @@ package com.feng.home.common.bean;
 import com.feng.home.common.common.StringUtil;
 import com.feng.home.common.exception.BusinessException;
 import com.feng.home.common.exception.SampleBusinessException;
-import org.apache.commons.beanutils.BeanUtilsBean;
-
-import java.beans.BeanInfo;
-import java.beans.Introspector;
-import java.beans.PropertyDescriptor;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -20,6 +14,7 @@ import java.util.stream.Collectors;
 /**
  * create by FengZiyu
  * 2019/11/01
+ * bean工具类
  */
 public class BeanUtils {
 

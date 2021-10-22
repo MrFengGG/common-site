@@ -8,6 +8,7 @@ import com.feng.home.common.common.StringUtil;
 import com.feng.home.common.sql.SqlBuilder;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
+import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.sql.SQLException;
@@ -15,6 +16,8 @@ import java.util.*;
 
 public abstract class BaseDao{
     protected JdbcTemplate jdbcTemplate;
+
+    protected String dbType;
 
     protected void setJdbcTemplate(JdbcTemplate jdbcTemplate){
         this.jdbcTemplate = jdbcTemplate;
@@ -167,7 +170,14 @@ public abstract class BaseDao{
     }
 
     private String getCurrentDbType() throws SQLException {
-        return this.jdbcTemplate.getDataSource().getConnection().getMetaData().getDatabaseProductName();
+        if(StringUtil.isNotEmpty(dbType)){
+            return dbType;
+        }
+        synchronized (this){
+            dbType = this.jdbcTemplate.execute((ConnectionCallback<String>) connection ->
+                    connection.getMetaData().getDatabaseProductName());
+        }
+        return dbType;
     }
 
     private String getUpdateSql(Map<String, Object> beanPropertyMap, String table, String column){

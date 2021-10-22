@@ -1,6 +1,4 @@
-package com.feng.home.common.validate;
-
-import com.feng.home.common.exception.SampleBusinessException;
+package com.feng.home.common.exception;
 
 public class AssertUtil {
     public static void assertTrue(boolean flag, String message){

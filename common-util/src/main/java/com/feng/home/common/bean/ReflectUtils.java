@@ -2,6 +2,7 @@ package com.feng.home.common.bean;
 
 import java.lang.reflect.Field;
 
+
 public class ReflectUtils {
     public static <T> T getSampleInstance(Class<T> tClass){
         try {
