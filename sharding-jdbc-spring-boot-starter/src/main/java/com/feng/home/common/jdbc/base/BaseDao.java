@@ -1,30 +1,33 @@
 package com.feng.home.common.jdbc.base;
 
+import com.feng.home.common.exception.AssertUtil;
 import com.feng.home.common.jdbc.pagination.Page;
 import com.feng.home.common.jdbc.pagination.PaginationSupport;
 import com.feng.home.common.jdbc.pagination.PaginationSupportFactory;
 import com.feng.home.common.bean.BeanUtils;
 import com.feng.home.common.common.StringUtil;
 import com.feng.home.common.sql.SqlBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.sql.SQLException;
 import java.util.*;
 
 public abstract class BaseDao{
+
+    @Autowired
     protected JdbcTemplate jdbcTemplate;
 
-    protected String dbType;
-
-    protected void setJdbcTemplate(JdbcTemplate jdbcTemplate){
-        this.jdbcTemplate = jdbcTemplate;
-    }
+    private String dbType;
 
     //分页查询
-    public <T> Page<T> queryForPaginationBean(Page<T> page, Class<T> modelClass, String sql, Object[] args){
+    public <T> Page<T> queryForPaginationBean(@NotNull Page<T> page, @NotNull Class<T> modelClass, @NotBlank String sql, @NotNull Object[] args){
         PaginationSupport paginationSupport = null;
         try {
             paginationSupport = getSuitablePaginationSupport();
@@ -37,18 +40,19 @@ public abstract class BaseDao{
         page.setData(data);
         return page;
     }
-    public <T> Page<T> queryForPaginationBean(Page<T> page, Class<T> modelClass, SqlBuilder sqlBuilder){
+
+    public <T> Page<T> queryForPaginationBean(@NotNull Page<T> page, @NotNull Class<T> modelClass, @NotNull SqlBuilder sqlBuilder){
         return queryForPaginationBean(page, modelClass, sqlBuilder.getSql(), sqlBuilder.getParamArray());
     }
     //全量查询
-    public <T> List<T> queryForAllBean(Class<T> modelClass, String sql, Object[] args){
+    public <T> List<T> queryForAllBean(@NotNull Class<T> modelClass, @NotBlank String sql, @NotNull Object[] args){
         return this.jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(modelClass), args);
     }
-    public <T> List<T> queryForAllBean(Class<T> modelClass, SqlBuilder sqlBuilder){
+    public <T> List<T> queryForAllBean(@NotNull Class<T> modelClass, @NotNull SqlBuilder sqlBuilder){
         return this.queryForAllBean(modelClass, sqlBuilder.getSql(), sqlBuilder.getParamArray());
     }
     //单项查询
-    public <T> Optional<T> findFirstBean(Class<T> modelClass, String sql, Object[] args){
+    public <T> Optional<T> findFirstBean(@NotNull Class<T> modelClass, @NotBlank String sql, @NotNull Object[] args){
         T t;
         try {
             t = this.jdbcTemplate.queryForObject(sql, BeanPropertyRowMapper.newInstance(modelClass), args);
@@ -61,7 +65,7 @@ public abstract class BaseDao{
         return findFirstBean(modelClass, sqlBuilder.getSql(), sqlBuilder.getParamArray());
     }
     //分页map查询
-    public Page<Map<String, Object>> queryForPaginationMap(Page<Map<String, Object>> page, String sql, Object[] args) {
+    public Page<Map<String, Object>> queryForPaginationMap(@NotNull Page<Map<String, Object>> page, @NotBlank String sql, @NotNull Object[] args) {
         PaginationSupport paginationSupport = null;
         try {
             paginationSupport = getSuitablePaginationSupport();
@@ -74,19 +78,45 @@ public abstract class BaseDao{
         page.setData(data);
         return page;
     }
-    public Page<Map<String, Object>> queryForPaginationMap(Page<Map<String, Object>> page, SqlBuilder sqlBuilder){
+
+    /**
+     * 根据SqlBuilder快速分页查询接口
+     * @param page
+     * @param sqlBuilder
+     * @return
+     */
+    public Page<Map<String, Object>> queryForPaginationMap(@NotNull Page<Map<String, Object>> page, @NotNull SqlBuilder sqlBuilder){
         return queryForPaginationMap(page, sqlBuilder.getSql(), sqlBuilder.getParamArray());
     }
-    //更新
-    public int update(SqlBuilder sqlBuilder){
+
+    /**
+     * 根据SqlBuilder快速更新
+     * @param sqlBuilder
+     * @return
+     */
+    public int update(@NotNull SqlBuilder sqlBuilder){
         return this.update(sqlBuilder.getSql(), sqlBuilder.getParamArray());
     }
 
-    public int update(String sql, Object[] args){
+    /**
+     * 根据SQL进行更新
+     * @param sql
+     * @param args
+     * @return
+     */
+    public int update(@NotBlank String sql, @NotNull Object[] args){
         return jdbcTemplate.update(sql, args);
     }
-    //更新数据
-    public <T> int updateBean(String column, T bean, String table){
+
+    /**
+     * 快速更新javabean对象
+     * @param column 数据库字段名称
+     * @param bean
+     * @param table
+     * @param <T>
+     * @return
+     */
+    public <T> int updateBean(@NotBlank String column, @NotNull T bean, @NotBlank String table){
         Map<String, Object> parameterMap = BeanUtils.transBeanToMap(bean);
         Object selectValue = parameterMap.remove(column);
 
@@ -95,32 +125,79 @@ public abstract class BaseDao{
         String sql = getUpdateSql(parameterMap, table, column);
         return this.jdbcTemplate.update(sql, params.toArray());
     }
-    //根据ID更数据
-    public <T> int updateById(T bean, String table){
+
+    /**
+     * 快速根据ID进行修改
+     * @param bean
+     * @param table
+     * @param <T>
+     * @return
+     */
+    public <T> int updateById(@NotNull T bean, String table){
         return updateBean("id", bean, table);
     }
-    //删除
-    public int remove(String column, Object value, String table){
+
+    /**
+     * 快速根据字段删除
+     * @param column
+     * @param value
+     * @param table
+     * @return
+     */
+    public int remove(@NotBlank String column, @NotNull Object value, @NotBlank String table){
         String sql = "delete from " + table + " where " + column + " =?";
         return this.jdbcTemplate.update(sql, value);
     }
-    public int remove(String column, Object[] valueArray, String table){
+
+    /**
+     * 快速根据字段批量删除
+     * @param column
+     * @param valueArray
+     * @param table
+     * @return
+     */
+    public int remove(@NotBlank String column, @NotEmpty Object[] valueArray, @NotBlank String table){
         String sql = "delete from " + table + " where " + column + " in(" + StringUtil.getEmptyParams(valueArray.length) + ")";
         return this.jdbcTemplate.update(sql, valueArray);
     }
-    public int removeById(Object id, String table){
+
+    /**
+     * 快速根据ID删除
+     * @param id
+     * @param table
+     * @return
+     */
+    public int removeById(@NotNull Object id, @NotBlank String table){
         return remove("id", id, table);
     }
-    public int removeByIdArray(Object[] array, String table){
+
+    /**
+     * 快速根据ID批量删除
+     * @param array
+     * @param table
+     * @return
+     */
+    public int removeByIdArray(@NotEmpty Object[] array, @NotBlank String table){
         return remove("id", array, table);
     }
-    //保存
+    /**
+     * 保存单个对象
+     * @param bean
+     * @param table
+     * @param <T>
+     */
     public <T> void saveBean(T bean, String table){
         Map<String, Object> parameterMap = BeanUtils.transBeanToMap(bean);
         String sql = this.getSaveSql(parameterMap, table);
         this.jdbcTemplate.update(sql, parameterMap.values().toArray());
     }
-    //批量保存
+
+    /**
+     * 批量保存javaBean对象,使用NoConvertField标注的字段不会保存
+     * @param beans
+     * @param table
+     * @param <T>
+     */
     public <T> void saveBeanList(List<T> beans, String table){
         if(beans.size() <= 0){
             return;
@@ -136,11 +213,28 @@ public abstract class BaseDao{
         }
         this.jdbcTemplate.batchUpdate(sql, batchArgs);
     }
-    //根据ID查询
+
+    /**
+     * 快速根据主健ID(id)进行单条记录查询
+     * @param id
+     * @param modelClass
+     * @param table
+     * @param <T>
+     * @return
+     */
     public <T> Optional<T> findById(Integer id, Class<T> modelClass, String table){
         return findBy("id", modelClass, table, id);
     }
-    //根据字段快速查询
+
+    /**
+     * 根据数据库表指定的一个字段进行单条记录查询
+     * @param key
+     * @param modelClass
+     * @param table
+     * @param value
+     * @param <T>
+     * @return
+     */
     public <T> Optional<T> findBy(String key, Class<T> modelClass, String table, Object value){
         T t;
         try {
@@ -150,17 +244,41 @@ public abstract class BaseDao{
         }
         return Optional.ofNullable(t);
     }
-    //计数
+
+    /**
+     * 根据占位符sql和入参进行计数
+     * @param sql
+     * @param args
+     * @return
+     */
     public Integer count(String sql, Object[] args){
         return this.jdbcTemplate.queryForObject(sql, Integer.class, args);
     }
+
+    /**
+     * 根据SQLBuilder进行计数
+     * @param sqlBuilder
+     * @return
+     */
     public Integer count(SqlBuilder sqlBuilder){
+        AssertUtil.assertNotNull(sqlBuilder, "count sqlBuilder cannot be null");
         return this.jdbcTemplate.queryForObject(sqlBuilder.getSql(), Integer.class, sqlBuilder.getParamArray());
     }
+
+    /**
+     * 简单执行SQL并计数
+     * @param sql
+     * @return
+     */
     public Integer count(String sql){
         return this.jdbcTemplate.queryForObject(sql, Integer.class);
     }
 
+    /**
+     * 获取当前适用的分页插件
+     * @return
+     * @throws SQLException
+     */
     private PaginationSupport getSuitablePaginationSupport() throws SQLException {
         try {
             return PaginationSupportFactory.getSuitableSupport(this.getCurrentDbType());
@@ -169,6 +287,11 @@ public abstract class BaseDao{
         }
     }
 
+    /**
+     * 获取当前数据库类型
+     * @return
+     * @throws SQLException
+     */
     private String getCurrentDbType() throws SQLException {
         if(StringUtil.isNotEmpty(dbType)){
             return dbType;
@@ -180,24 +303,39 @@ public abstract class BaseDao{
         return dbType;
     }
 
+    /**
+     * 获取更新bean的SQL
+     * @param beanPropertyMap
+     * @param table
+     * @param column
+     * @return
+     */
     private String getUpdateSql(Map<String, Object> beanPropertyMap, String table, String column){
+        AssertUtil.assertTrue(beanPropertyMap.containsKey(column), String.format("column:%s not exist in bean", column));
         StringBuilder updateSqlBuilder = new StringBuilder("UPDATE ").append(table);
         boolean isFirstParam = true;
         for(String key : beanPropertyMap.keySet()){
-            if(!key.equals(column)){
-                if (isFirstParam) {
-                    updateSqlBuilder.append(" SET ");
-                    isFirstParam = false;
-                } else {
-                    updateSqlBuilder.append(",");
-                }
-                updateSqlBuilder.append(key).append("=").append("?");
+            if(key.equals(column)){
+                continue;
             }
+            if (isFirstParam) {
+                updateSqlBuilder.append(" SET ");
+                isFirstParam = false;
+            } else {
+                updateSqlBuilder.append(",");
+            }
+            updateSqlBuilder.append(key).append("=").append("?");
         }
         updateSqlBuilder.append(" WHERE ").append(column).append("=?");
         return updateSqlBuilder.toString();
     }
 
+    /**
+     * 生成保存bean的SQL
+     * @param beanPropertyMap
+     * @param table
+     * @return
+     */
     private String getSaveSql(Map<String, Object> beanPropertyMap, String table){
         return "INSERT INTO " +
                 table +
