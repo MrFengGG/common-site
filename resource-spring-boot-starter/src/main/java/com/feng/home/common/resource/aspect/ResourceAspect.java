@@ -1,7 +1,7 @@
 package com.feng.home.common.resource.aspect;
 
 import com.feng.home.common.resource.annotation.ResourceMeta;
-import com.feng.home.common.resource.base.ResourceHandler;
+import com.feng.home.common.resource.handler.ResourceHandler;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;

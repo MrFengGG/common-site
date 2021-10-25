@@ -1,13 +1,20 @@
 package com.feng.home.common.exception;
 
-import com.feng.home.common.enums.ResponseCode;
+import lombok.Getter;
 
 /**
  * create by FengZiyu
  * 2019/11/20
+ * 业务异常
  */
-public abstract class BusinessException extends RuntimeException {
-    public BusinessException() {
+@Getter
+public class BusinessException extends RuntimeException {
+
+    private Integer errorCode;
+
+    public BusinessException(Integer errorCode, String message){
+        super(message);
+        this.errorCode = errorCode;
     }
 
     public BusinessException(String message) {
@@ -17,6 +24,4 @@ public abstract class BusinessException extends RuntimeException {
     public BusinessException(String message, Throwable cause) {
         super(message, cause);
     }
-
-    public abstract ResponseCode getResponseCode();
 }

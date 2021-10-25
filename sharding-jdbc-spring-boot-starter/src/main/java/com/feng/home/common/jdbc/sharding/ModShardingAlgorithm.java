@@ -18,7 +18,7 @@ public class ModShardingAlgorithm implements RangeShardingAlgorithm<Comparable<N
     public Collection<String> doSharding(Collection<String> collection, RangeShardingValue<Comparable<Number>> rangeShardingValue) {
         Range<Comparable<Number>> valueRange = rangeShardingValue.getValueRange();
         Collection<String> resultCollection = new LinkedList<>();
-        for (Long i = ((Number) valueRange.lowerEndpoint()).longValue(); i < ((Number) valueRange.upperEndpoint()).longValue(); i++) {
+        for (long i = ((Number) valueRange.lowerEndpoint()).longValue(); i < ((Number) valueRange.upperEndpoint()).longValue(); i++) {
             for(String dataSource : collection){
                 if(dataSource.endsWith(String.valueOf(i % collection.size()))){
                     resultCollection.add(dataSource);
@@ -30,11 +30,11 @@ public class ModShardingAlgorithm implements RangeShardingAlgorithm<Comparable<N
 
     @Override
     public String doSharding(Collection<String> collection, PreciseShardingValue<Comparable<Number>> preciseShardingValue) {
-        Comparable a = preciseShardingValue.getValue();
+        Comparable<Number> a = preciseShardingValue.getValue();
         long value = ((Number) a).longValue();
         long size = collection.size();
         return collection.stream()
-                .filter(dataSource -> { return dataSource.endsWith(String.valueOf(value % size)); })
+                .filter(dataSource -> dataSource.endsWith(String.valueOf(value % size)))
                 .findAny()
                 .orElseThrow(() -> new IllegalArgumentException("sharding failed because suitable target not found : " + preciseShardingValue));
     }

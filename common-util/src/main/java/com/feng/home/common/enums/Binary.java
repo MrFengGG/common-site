@@ -1,5 +1,8 @@
 package com.feng.home.common.enums;
 
+/**
+ * 二元枚举
+ */
 public enum Binary {
     YES(1, "是"), NO(0, "否");
     private Integer value;

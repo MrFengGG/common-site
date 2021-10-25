@@ -1,6 +1,6 @@
 package com.feng.home.common.resource.context;
 import com.feng.home.common.resource.aspect.ResourceAspect;
-import com.feng.home.common.resource.base.ResourceHandler;
+import com.feng.home.common.resource.handler.ResourceHandler;
 import com.feng.home.common.resource.service.ResourceProcessor;
 import com.feng.home.common.resource.annotation.ResourceClass;
 import com.feng.home.common.resource.annotation.ResourceMeta;
@@ -35,17 +35,18 @@ public class ResourceContext implements ApplicationContextAware {
         resourceHandlerMap.values().forEach(resourceAspect::addHandle);
     }
 
-    public static Map getResourceMetaMap(){
-        return new HashMap(resourceMetaMap);
+    public static Map<String, ResourceMeta> getResourceMetaMap(){
+        return new HashMap<>(resourceMetaMap);
     }
 
     private void initResourceFromObject(Object resourceObject){
         Method[] methods = resourceObject.getClass().getMethods();
         for(Method method : methods){
             ResourceMeta resourceMeta = AnnotationUtils.getAnnotation(method, ResourceMeta.class);
-            if(resourceMeta != null){
-                resourceMetaMap.put(resourceMeta.code(), resourceMeta);
+            if(resourceMeta == null){
+                continue;
             }
+            resourceMetaMap.put(resourceMeta.code(), resourceMeta);
         }
     }
 }

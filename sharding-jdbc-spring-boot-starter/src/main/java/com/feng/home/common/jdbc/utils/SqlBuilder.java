@@ -1,4 +1,4 @@
-package com.feng.home.common.sql;
+package com.feng.home.common.jdbc.utils;
 
 import com.feng.home.common.common.StringUtil;
 
@@ -7,6 +7,9 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.stream.Collectors;
 
+/**
+ * SQL工具类
+ */
 public final class SqlBuilder {
     private StringBuilder sqlBuilder;
 

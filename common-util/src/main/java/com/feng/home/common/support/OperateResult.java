@@ -4,6 +4,7 @@ import lombok.Data;
 /**
  * create by FengZiyu
  * 2019/12/30
+ * 返回值
  */
 @Data
 public class OperateResult<T> {

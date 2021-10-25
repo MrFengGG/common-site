@@ -13,7 +13,7 @@ import javax.sql.DataSource;
 
 @Configuration
 @ConditionalOnClass(HealthIndicator.class)
-public class CommonStarterAutoConfiguration {
+public class CommonWebStarterAutoConfiguration {
     @Resource
     private DataSource dataSource;
 

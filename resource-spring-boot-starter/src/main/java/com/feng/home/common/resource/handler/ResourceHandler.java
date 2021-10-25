@@ -1,4 +1,4 @@
-package com.feng.home.common.resource.base;
+package com.feng.home.common.resource.handler;
 
 import com.feng.home.common.exception.BusinessException;
 import com.feng.home.common.resource.annotation.ResourceMeta;

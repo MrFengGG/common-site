@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 /**
  * create by FengZiyu
  * 2019/12/30
+ * 批量操作返回值
  */
 public class BatchOperateResult<T> {
     private List<OperateResult<T>> operateResultList = new LinkedList<>();

@@ -8,6 +8,7 @@ import java.util.function.Predicate;
 /**
  * create by FengZiyu
  * 2019/09/03
+ * 包扫描工具
  */
 public interface PackageScanner {
     public List<String> scan(String basePackage) throws IOException;

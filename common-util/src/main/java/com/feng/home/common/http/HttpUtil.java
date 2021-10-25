@@ -2,7 +2,6 @@ package com.feng.home.common.http;
 
 import com.alibaba.fastjson.JSONObject;
 import com.feng.home.common.collection.Dict;
-import org.apache.http.Header;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -14,6 +13,9 @@ import org.apache.http.util.EntityUtils;
 import java.io.IOException;
 import java.util.stream.Collectors;
 
+/**
+ * HTTP工具类
+ */
 public class HttpUtil {
 
     public static JSONObject get(String url, Dict header, Dict param) throws IOException {

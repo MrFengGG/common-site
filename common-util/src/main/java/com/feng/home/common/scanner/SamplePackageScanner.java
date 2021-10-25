@@ -1,6 +1,7 @@
 package com.feng.home.common.scanner;
 
 import com.feng.home.common.common.StringUtil;
+import com.feng.home.common.exception.BusinessException;
 
 import java.io.File;
 import java.io.IOException;
@@ -33,6 +34,9 @@ public class SamplePackageScanner implements PackageScanner {
         String basePackagePath = this.classToPath(basePackage);
         ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
         URL url = classLoader.getResource(basePackagePath);
+        if(url == null){
+            throw new BusinessException("cannot find the url you want to scan");
+        }
 
         if(url.getProtocol().equals("file")){
             String classPath = URLDecoder.decode(classLoader.getResource("").getFile(), "UTF-8");
@@ -71,9 +75,10 @@ public class SamplePackageScanner implements PackageScanner {
             try {
                 targetClass = Class.forName(fullClassName);
                 Annotation t = targetClass.getAnnotation(tClass);
-                if(t != null && t.annotationType() == tClass){
-                    annotations.add((T) t);
+                if(t == null || t.annotationType() == tClass){
+                    continue;
                 }
+                annotations.add((T) t);
             }catch (Exception e){
 
             }

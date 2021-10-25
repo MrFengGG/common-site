@@ -5,9 +5,9 @@ import com.feng.home.common.common.StringUtil;
 
 public class MysqlPaginationSupport implements PaginationSupport {
     @Override
-    public String getPaginationSql(String sql, Page page) {
+    public <T> String getPaginationSql(String sql, Page<T> page) {
         long startIndex = (page.getPageNo() - 1) * page.getPageSize();
-        long endIndex = startIndex + page.getPageSize() - 1;
+        long endIndex = startIndex + page.getPageSize();
         StringBuilder sqlBuilder = new StringBuilder(sql);
         if(!StringUtil.isEmpty(page.getSortBy())){
             sqlBuilder.append(" ORDER BY ").append(page.getSortBy()).append(page.getRank());

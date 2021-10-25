@@ -6,12 +6,13 @@ import com.feng.home.common.jdbc.pagination.PaginationSupport;
 import com.feng.home.common.jdbc.pagination.PaginationSupportFactory;
 import com.feng.home.common.bean.BeanUtils;
 import com.feng.home.common.common.StringUtil;
-import com.feng.home.common.sql.SqlBuilder;
+import com.feng.home.common.jdbc.utils.SqlBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.ConnectionCallback;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.validation.annotation.Validated;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
@@ -19,6 +20,7 @@ import javax.validation.constraints.NotNull;
 import java.sql.SQLException;
 import java.util.*;
 
+@Validated
 public abstract class BaseDao{
 
     @Autowired
@@ -117,7 +119,7 @@ public abstract class BaseDao{
      * @return
      */
     public <T> int updateBean(@NotBlank String column, @NotNull T bean, @NotBlank String table){
-        Map<String, Object> parameterMap = BeanUtils.transBeanToMap(bean);
+        Map<String, Object> parameterMap = BeanUtils.transBeanToMapWithUnderScore(bean);
         Object selectValue = parameterMap.remove(column);
 
         List<Object> params = new ArrayList<>(parameterMap.values());
@@ -187,7 +189,7 @@ public abstract class BaseDao{
      * @param <T>
      */
     public <T> void saveBean(T bean, String table){
-        Map<String, Object> parameterMap = BeanUtils.transBeanToMap(bean);
+        Map<String, Object> parameterMap = BeanUtils.transBeanToMapWithUnderScore(bean);
         String sql = this.getSaveSql(parameterMap, table);
         this.jdbcTemplate.update(sql, parameterMap.values().toArray());
     }
@@ -205,7 +207,7 @@ public abstract class BaseDao{
         String sql = null;
         List<Object[]> batchArgs = new LinkedList<>();
         for(T bean : beans) {
-            Map<String, Object> beanPropertyMap = BeanUtils.transBeanToMap(bean);
+            Map<String, Object> beanPropertyMap = BeanUtils.transBeanToMapWithUnderScore(bean);
             if (sql == null) {
                 sql = getSaveSql(beanPropertyMap, table);
             }

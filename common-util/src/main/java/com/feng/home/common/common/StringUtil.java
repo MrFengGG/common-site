@@ -1,5 +1,7 @@
 package com.feng.home.common.common;
 
+import org.apache.commons.collections.CollectionUtils;
+
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -10,6 +12,7 @@ import java.util.stream.Stream;
 /**
  * create by FengZiyu
  * 2019/09/03
+ * 字符串工具类
  */
 public class StringUtil {
     public static boolean isEmpty(String value){
@@ -37,22 +40,50 @@ public class StringUtil {
         return !isEmpty(value);
     }
 
+    /**
+     * 将数组聚合为字符串
+     * @param strings
+     * @param joiner
+     * @return
+     */
     public static String join(String[] strings, String joiner){
+        if(strings == null){
+            return null;
+        }
         return String.join(joiner, strings);
     }
 
-    public static Object join(Object[] objects, String joiner){
-        return Arrays.stream(objects).map(String::valueOf).collect(Collectors.joining(joiner));
+    /**
+     * 将集合聚合为字符串
+     * @param strings
+     * @param joiner
+     * @return
+     */
+    public static<T> String join(Collection<T> strings, String joiner){
+        if(CollectionUtils.isEmpty(strings)){
+            return null;
+        }
+        return strings.stream().map(String::valueOf).collect(Collectors.joining(joiner));
     }
 
-    public static String join(Collection strings, String joiner){
-        return ((Collection<Object>) strings).stream().map(String::valueOf).collect(Collectors.joining(joiner));
-    }
-
+    /**
+     * 分割字符串
+     * @param str
+     * @param splitter
+     * @return
+     */
     public static Collection<String> split(String str, String splitter){
+        if(isEmpty(str)){
+            return null;
+        }
         return Stream.of(str.split(splitter)).collect(Collectors.toList());
     }
 
+    /**
+     * 获取sql占位符
+     * @param length
+     * @return
+     */
     public static String getEmptyParams(int length){
         List<String> emptyParams = new LinkedList<>();
         for (int i = 0; i < length; i++) {

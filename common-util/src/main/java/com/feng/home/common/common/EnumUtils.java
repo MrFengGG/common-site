@@ -7,6 +7,7 @@ import java.util.stream.Stream;
 /**
  * create by FengZiyu
  * 2019/09/03
+ * 枚举工具类
  */
 public class EnumUtils {
     public static <T extends Enum> T[] getAllValues(Class<T> tClass){

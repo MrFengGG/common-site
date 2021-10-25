@@ -2,7 +2,11 @@ package com.feng.home.common.bean;
 
 import java.lang.reflect.Field;
 
-
+/**
+ * create by FengZiyu
+ * 2019/11/01
+ * 反射工具类,用于构造对象
+ */
 public class ReflectUtils {
     public static <T> T getSampleInstance(Class<T> tClass){
         try {

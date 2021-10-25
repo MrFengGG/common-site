@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 public class ExceptionAdvice {
     @ExceptionHandler(BusinessException.class)
     Object handleException(BusinessException e){
-        return FrontRequestResult.fail(e.getMessage(), e.getResponseCode());
+        return FrontRequestResult.fail(e.getErrorCode() == null ? ResponseCode.FAIL : e.getErrorCode(), e.getMessage());
     }
 
 }

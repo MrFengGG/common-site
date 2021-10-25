@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-com.feng.home.common.CommonStarterAutoConfiguration
+com.feng.home.common.CommonWebStarterAutoConfiguration
