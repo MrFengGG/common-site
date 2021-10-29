@@ -1,8 +1,6 @@
 package com.feng.home.common.jdbc.base;
 
-
 import org.springframework.validation.annotation.Validated;
-
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
@@ -27,7 +25,6 @@ public abstract class BaseMappingDao extends BaseDao{
     public <T> Optional<T> findById(@NotNull Integer id, @NotNull Class<T> modelClass){
         return this.findById(id, modelClass, this.getTable());
     }
-
     /**
      * 快速根据单个字段查询
      * @param key 字段名称
@@ -77,11 +74,11 @@ public abstract class BaseMappingDao extends BaseDao{
         this.removeBy("id", value);
     }
 
-    public Optional<DaoMapping> getThisDaoMapping(){
+    private Optional<DaoMapping> getThisDaoMapping(){
         return Optional.ofNullable(this.getClass().getAnnotation(DaoMapping.class));
     }
 
-    public String getTable(){
+    private String getTable(){
         return getThisDaoMapping().map(DaoMapping::logicTable).orElseThrow(() -> new UnsupportedOperationException("缺少DaoMapping注解的类不支持该类查询"));
     }
 }

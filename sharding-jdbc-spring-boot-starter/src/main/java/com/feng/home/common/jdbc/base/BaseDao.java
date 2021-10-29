@@ -28,7 +28,15 @@ public abstract class BaseDao{
 
     private String dbType;
 
-    //分页查询
+    /**
+     * 分页查询
+     * @param page
+     * @param modelClass
+     * @param sql
+     * @param args
+     * @param <T>
+     * @return
+     */
     public <T> Page<T> queryForPaginationBean(@NotNull Page<T> page, @NotNull Class<T> modelClass, @NotBlank String sql, @NotNull Object[] args){
         PaginationSupport paginationSupport = null;
         try {
@@ -43,17 +51,49 @@ public abstract class BaseDao{
         return page;
     }
 
+    /**
+     * 分页查询
+     * @param page
+     * @param modelClass
+     * @param sqlBuilder
+     * @param <T>
+     * @return
+     */
     public <T> Page<T> queryForPaginationBean(@NotNull Page<T> page, @NotNull Class<T> modelClass, @NotNull SqlBuilder sqlBuilder){
         return queryForPaginationBean(page, modelClass, sqlBuilder.getSql(), sqlBuilder.getParamArray());
     }
-    //全量查询
+
+    /**
+     * 快速查询全部
+     * @param modelClass
+     * @param sql
+     * @param args
+     * @param <T>
+     * @return
+     */
     public <T> List<T> queryForAllBean(@NotNull Class<T> modelClass, @NotBlank String sql, @NotNull Object[] args){
         return this.jdbcTemplate.query(sql, new BeanPropertyRowMapper<>(modelClass), args);
     }
+
+    /**
+     * 快速查询全部
+     * @param modelClass
+     * @param sqlBuilder
+     * @param <T>
+     * @return
+     */
     public <T> List<T> queryForAllBean(@NotNull Class<T> modelClass, @NotNull SqlBuilder sqlBuilder){
         return this.queryForAllBean(modelClass, sqlBuilder.getSql(), sqlBuilder.getParamArray());
     }
-    //单项查询
+
+    /**
+     * 快速查询首个Bean
+     * @param modelClass
+     * @param sql
+     * @param args
+     * @param <T>
+     * @return
+     */
     public <T> Optional<T> findFirstBean(@NotNull Class<T> modelClass, @NotBlank String sql, @NotNull Object[] args){
         T t;
         try {
@@ -66,7 +106,14 @@ public abstract class BaseDao{
     public <T> Optional<T> findFirstBean(Class<T> modelClass, SqlBuilder sqlBuilder){
         return findFirstBean(modelClass, sqlBuilder.getSql(), sqlBuilder.getParamArray());
     }
-    //分页map查询
+
+    /**
+     * 快速分页查询Map
+     * @param page
+     * @param sql
+     * @param args
+     * @return
+     */
     public Page<Map<String, Object>> queryForPaginationMap(@NotNull Page<Map<String, Object>> page, @NotBlank String sql, @NotNull Object[] args) {
         PaginationSupport paginationSupport = null;
         try {
