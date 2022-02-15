@@ -15,7 +15,7 @@ public class ValidationUtil {
     private static ValidatorFactory validatorFactory = Validation.buildDefaultValidatorFactory();
 
     public static <T> void validate(T t) {
-        Set<ConstraintViolation<T>> validateSet = validatorFactory.getValidator().validate(t, new Class[0]);
+        Set<ConstraintViolation<T>> validateSet = validatorFactory.getValidator().validate(t);
         Optional<ConstraintViolation<T>> constraintViolation = validateSet.stream().findFirst();
         constraintViolation.ifPresent(violation -> {
             throw new BusinessException(violation.getMessage());
